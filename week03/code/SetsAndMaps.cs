@@ -21,8 +21,32 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        HashSet<string> wordsSet = new HashSet<string>(words);
+        HashSet<string> wordsPairs = new HashSet<string>();
+
+        foreach (string word in words)
+        {
+            string reversedWord = $"{word[1]}{word[0]}";
+
+            if (reversedWord == word)
+            {
+                continue;
+            }
+
+            if (wordsSet.Contains(reversedWord))
+            {
+                if (wordsPairs.Contains($"{word} & {reversedWord}") || wordsPairs.Contains($"{reversedWord} & {word}"))
+                {
+                    continue;
+                }
+                else
+                {
+                    wordsPairs.Add($"{word} & {reversedWord}");
+                }
+            }
+        }
+
+        return wordsPairs.ToArray();
     }
 
     /// <summary>
@@ -42,7 +66,14 @@ public static class SetsAndMaps
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            if (degrees.ContainsKey(fields[3]))
+            {
+                degrees[fields[3]] += 1;
+            }
+            else
+            {
+                degrees.Add(fields[3], 1);
+            }
         }
 
         return degrees;
@@ -66,8 +97,55 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+        var firstWord = new Dictionary<char, int>();
+        var secondWord = new Dictionary<char, int>();
+    
+        word1 = word1.ToLower().Replace(" ", "");
+        word2 = word2.ToLower().Replace(" ", "");
+
+        foreach (char letter in word1)
+        {
+            if (firstWord.ContainsKey(letter))
+            {
+                firstWord[letter] += 1;
+            }
+            else
+            {
+                firstWord.Add(letter, 1);
+            }
+        }
+
+        foreach (char letter in word2)
+        {
+            if (secondWord.ContainsKey(letter))
+            {
+                secondWord[letter] += 1;
+            }
+            else
+            {
+                secondWord.Add(letter, 1);
+            }
+        }
+
+        if (firstWord.Count != secondWord.Count)
+        {
+            return false;
+        }
+
+        foreach (char letter in firstWord.Keys)
+        {
+            if (!secondWord.ContainsKey(letter))
+            {
+                return false;
+            }
+
+            if (firstWord[letter] != secondWord[letter])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -84,6 +162,21 @@ public static class SetsAndMaps
     /// https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
     /// 
     /// </summary>
+    public class FeatureCollection
+    {
+        public List<Feature> Features { get; set; }
+    }
+
+    public class Feature
+    {
+        public Properties Properties { get; set; }
+    }
+
+    public class Properties
+    {
+        public double Mag { get; set; }
+        public string Place { get; set; }
+    }
     public static string[] EarthquakeDailySummary()
     {
         const string uri = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
@@ -96,11 +189,16 @@ public static class SetsAndMaps
 
         var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
 
-        // TODO Problem 5:
-        // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
-        // on those classes so that the call to Deserialize above works properly.
-        // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
-        // 3. Return an array of these string descriptions.
-        return [];
+        var earthquakes = new List<string>();
+
+        foreach (var feature in featureCollection.Features)
+        {
+            string place = feature.Properties.Place;
+            double magnitude = feature.Properties.Mag;
+
+            earthquakes.Add($"{place} - Mag {magnitude}");
+        }
+
+        return earthquakes.ToArray();
     }
 }
