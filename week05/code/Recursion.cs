@@ -53,7 +53,7 @@ public static class Recursion
             for (int i = 0; i < letters.Length; i++)
             {
                 char letter = letters[i];
-        
+
                 string remainingLetters = letters.Remove(i, 1);
                 PermutationsChoose(results, remainingLetters, size, word + letter);
             }
@@ -170,11 +170,35 @@ public static class Recursion
             currPath = new List<ValueTuple<int, int>>();
         }
 
-        // currPath.Add((1,2)); // Use this syntax to add to the current path
+        currPath.Add((x, y));
 
-        // TODO Start Problem 5
-        // ADD CODE HERE
+        if (maze.IsEnd(x, y))
+        {
+            results.Add(currPath.AsString());
+            currPath.RemoveAt(currPath.Count - 1);
+            return;
+        }
 
-        // results.Add(currPath.AsString()); // Use this to add your path to the results array keeping track of complete maze solutions when you find the solution.
+        if (maze.IsValidMove(currPath, x, y - 1))
+        {
+            SolveMaze(results, maze, x, y - 1, currPath);
+        }
+
+        if (maze.IsValidMove(currPath, x, y + 1))
+        {
+            SolveMaze(results, maze, x, y + 1, currPath);
+        }
+
+        if (maze.IsValidMove(currPath, x - 1, y))
+        {
+            SolveMaze(results, maze, x - 1, y, currPath);
+        }
+
+        if (maze.IsValidMove(currPath, x + 1, y))
+        {
+            SolveMaze(results, maze, x + 1, y, currPath);
+        }
+
+        currPath.RemoveAt(currPath.Count - 1);
     }
 }
